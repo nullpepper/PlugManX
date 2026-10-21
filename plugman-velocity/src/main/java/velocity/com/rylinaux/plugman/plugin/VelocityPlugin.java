@@ -50,16 +50,14 @@ public record VelocityPlugin(PluginContainer pluginContainer, Object instance) i
     @SneakyThrows
     @Override
     public File getFile() {
+        var source = pluginContainer.getDescription().getSource();
+        if (source.isPresent()) return source.get().toFile();
         return Path.of(instance().getClass().getProtectionDomain().getCodeSource().getLocation().toURI()).toFile();
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <T> T getHandle() {
-        try {
-            return (T) instance();
-        } catch (ClassCastException exception) {
-            return (T) pluginContainer();
-        }
+        return (T) (instance() == null ? pluginContainer() : instance());
     }
 }
